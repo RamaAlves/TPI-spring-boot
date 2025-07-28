@@ -1,6 +1,8 @@
 package com.informatorio.info_market.service.producto.impl;
 
 import com.informatorio.info_market.domain.Producto;
+import com.informatorio.info_market.dto.producto.ProductoDto;
+import com.informatorio.info_market.mapper.producto.ProductoMapper;
 import com.informatorio.info_market.repository.producto.ProductoRepository;
 import com.informatorio.info_market.repository.producto.ProductoRepositoryStub;
 import com.informatorio.info_market.service.producto.ProductoService;
@@ -10,22 +12,50 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
 public class ProductoServiceImpl implements ProductoService {
 
-    @Autowired
-    private ProductoRepository productoRepository;
+    private final ProductoRepository productoRepository;
+    private final ProductoMapper productoMapper;
 
-    public ProductoServiceImpl(ProductoRepository productoRepository) {
+    public ProductoServiceImpl(ProductoRepository productoRepository, ProductoMapper productoMapper) {
         this.productoRepository = productoRepository;
+        this.productoMapper = productoMapper;
     }
 
     @Override
-    public List<Producto> getAllProductos(){
+    public List<ProductoDto> getAllProductos(int minStock, double minPrice, double maxPrice){
+        List<Producto> productos;
 
-        return productoRepository.findAll();
+        if(minStock==0 && maxPrice==0){
+            productos = productoRepository.findAll();
+        }else if(minStock>0 && maxPrice>0){
+            productos = productoRepository.findAllByStockIsGreaterThanAndPrecioIsBetween(minStock, minPrice, maxPrice);
+        }else if(minStock>0 && minPrice>0){
+            productos = productoRepository.findAllByStockIsGreaterThanAndPrecioIsGreaterThan(minStock, minPrice);
+        }else if(maxPrice>0){
+            productos = productoRepository.findAllByPrecioIsBetween(minPrice,maxPrice);
+        }else{
+            productos = productoRepository.findAllByStockIsGreaterThan(minStock);
+        }
+        return productos.stream()
+                .map(producto -> productoMapper.toDto(producto))
+                .toList();
+    }
+
+    @Override
+    public ProductoDto getProductoById(UUID id){
+
+        Optional<Producto> producto = productoRepository.findById(id);
+
+        if (producto.isPresent()){
+            return productoMapper.toDto(producto.get());
+        }
+
+        return null;
     }
 
     @Override
@@ -35,5 +65,10 @@ public class ProductoServiceImpl implements ProductoService {
 
         productoRepository.save(producto);
         return producto;
+    }
+
+    @Override
+    public void deleteProductoById(UUID id){
+        productoRepository.deleteById(id);
     }
 }
