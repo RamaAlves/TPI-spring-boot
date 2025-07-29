@@ -1,7 +1,9 @@
 package com.informatorio.info_market.service.producto.impl;
 
 import com.informatorio.info_market.domain.Producto;
+import com.informatorio.info_market.dto.producto.ProductoCreateDto;
 import com.informatorio.info_market.dto.producto.ProductoDto;
+import com.informatorio.info_market.mapper.producto.ProductoCreateMapper;
 import com.informatorio.info_market.mapper.producto.ProductoMapper;
 import com.informatorio.info_market.repository.producto.ProductoRepository;
 import com.informatorio.info_market.repository.producto.ProductoRepositoryStub;
@@ -20,10 +22,12 @@ public class ProductoServiceImpl implements ProductoService {
 
     private final ProductoRepository productoRepository;
     private final ProductoMapper productoMapper;
+    private final ProductoCreateMapper productoCreateMapper;
 
-    public ProductoServiceImpl(ProductoRepository productoRepository, ProductoMapper productoMapper) {
+    public ProductoServiceImpl(ProductoRepository productoRepository, ProductoMapper productoMapper, ProductoCreateMapper productoCreateMapper) {
         this.productoRepository = productoRepository;
         this.productoMapper = productoMapper;
+        this.productoCreateMapper = productoCreateMapper;
     }
 
     @Override
@@ -59,16 +63,34 @@ public class ProductoServiceImpl implements ProductoService {
     }
 
     @Override
-    public Producto createProducto(Producto producto){
-        producto.setFechaCreacion(LocalDate.now());
-        producto.setFechaActualizacion(LocalDate.now());
+    public ProductoDto createProducto(ProductoCreateDto producto){
+        Producto productoToCreate = productoCreateMapper.productoDtoCreateToProducto(producto);
+        productoToCreate.setFechaCreacion(LocalDate.now());
+        productoToCreate.setFechaActualizacion(LocalDate.now());
 
-        productoRepository.save(producto);
-        return producto;
+        return productoMapper.toDto(productoRepository.save(productoToCreate));
     }
 
     @Override
     public void deleteProductoById(UUID id){
         productoRepository.deleteById(id);
+    }
+
+    @Override
+    public ProductoDto updateProducto(ProductoCreateDto producto, UUID productoId) {
+
+        Optional<Producto> productoToUpdate = productoRepository.findById(productoId);
+
+        if (productoToUpdate.isPresent()){
+            Producto productoUpdated = productoCreateMapper.productoDtoCreateToProducto(producto);
+
+            productoUpdated.setId(productoId);
+            productoUpdated.setFechaCreacion( productoToUpdate.get().getFechaCreacion());
+            productoUpdated.setFechaActualizacion(LocalDate.now());
+
+            return productoMapper.toDto(productoRepository.save(productoUpdated));
+        }
+
+        return null;
     }
 }
