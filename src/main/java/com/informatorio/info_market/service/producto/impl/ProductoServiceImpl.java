@@ -3,6 +3,8 @@ package com.informatorio.info_market.service.producto.impl;
 import com.informatorio.info_market.domain.Producto;
 import com.informatorio.info_market.dto.producto.ProductoCreateDto;
 import com.informatorio.info_market.dto.producto.ProductoDto;
+import com.informatorio.info_market.exception.badRequest.StockInsuficienteException;
+import com.informatorio.info_market.exception.notFound.NotFoundException;
 import com.informatorio.info_market.mapper.producto.ProductoCreateMapper;
 import com.informatorio.info_market.mapper.producto.ProductoMapper;
 import com.informatorio.info_market.repository.producto.ProductoRepository;
@@ -57,9 +59,20 @@ public class ProductoServiceImpl implements ProductoService {
 
         if (producto.isPresent()){
             return productoMapper.toDto(producto.get());
+        }else{
+           throw new NotFoundException("No se encontró el producto con id: "+id);
         }
+    }
+    @Override
+    public Producto getProductoEntityById(UUID id){
 
-        return null;
+        Optional<Producto> producto = productoRepository.findById(id);
+
+        if (producto.isPresent()){
+            return producto.get();
+        }else{
+           throw new NotFoundException("No se encontró el producto con id: "+id);
+        }
     }
 
     @Override
@@ -73,7 +86,19 @@ public class ProductoServiceImpl implements ProductoService {
 
     @Override
     public void deleteProductoById(UUID id){
+        if(productoRepository.existsById(id)){
+
         productoRepository.deleteById(id);
+        }else{
+            throw new NotFoundException("No se encontró el producto con id: "+id);
+        }
+    }
+
+    @Override
+    public void descontarStock(Producto producto, int cantidad) {
+        if(producto.getStock()<cantidad){
+            throw new StockInsuficienteException("No existe stock suficiente del producto");
+        }
     }
 
     @Override
@@ -89,8 +114,10 @@ public class ProductoServiceImpl implements ProductoService {
             productoUpdated.setFechaActualizacion(LocalDate.now());
 
             return productoMapper.toDto(productoRepository.save(productoUpdated));
+        }else{
+            throw new NotFoundException("No se encontró el producto con id: "+productoId);
         }
 
-        return null;
+
     }
 }

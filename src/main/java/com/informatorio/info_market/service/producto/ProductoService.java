@@ -10,7 +10,9 @@ import java.util.UUID;
 public interface ProductoService {
     List<ProductoDto> getAllProductos(int minStock, double minPrice, double maxPrice);
     ProductoDto getProductoById(UUID id);
+    Producto getProductoEntityById(UUID id);
     ProductoDto createProducto(ProductoCreateDto producto);
-    void deleteProductoById(UUID id);
     ProductoDto updateProducto(ProductoCreateDto producto, UUID productoId);
+    void deleteProductoById(UUID id);
+    void descontarStock(Producto producto, int cantidad);
 }
