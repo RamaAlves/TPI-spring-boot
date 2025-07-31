@@ -6,6 +6,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,8 +22,8 @@ public class Carrito {
     @Enumerated(EnumType.STRING)
     private EstadoCarritoEnum estadoCarrito;
 
-    @ManyToMany
-    private List<Producto> productos;
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.REFRESH}, mappedBy = "carrito")
+    private List<ItemCarrito> items = new ArrayList<>();
 
     @OneToOne(mappedBy = "carrito", cascade = CascadeType.ALL, orphanRemoval = true)
     private Factura factura;
@@ -31,21 +32,22 @@ public class Carrito {
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 
-    private LocalDate FechaCreacion;
+    private LocalDate fechaCreacion;
 
-    private LocalDate FechaActualizacion;
+    private LocalDate fechaActualizacion;
+
 
     public Carrito() {
     }
 
-    public Carrito(UUID id, EstadoCarritoEnum estadoCarrito, List<Producto> productos, Factura factura, Usuario usuario, LocalDate fechaCreacion, LocalDate fechaActualizacion) {
+    public Carrito(UUID id, EstadoCarritoEnum estadoCarrito, List<ItemCarrito> items, Factura factura, Usuario usuario, LocalDate fechaCreacion, LocalDate fechaActualizacion) {
         this.id = id;
         this.estadoCarrito = estadoCarrito;
-        this.productos = productos;
+        this.items = items;
         this.factura = factura;
         this.usuario = usuario;
-        FechaCreacion = fechaCreacion;
-        FechaActualizacion = fechaActualizacion;
+        this.fechaCreacion = fechaCreacion;
+        this.fechaActualizacion = fechaActualizacion;
     }
 
     public UUID getId() {
@@ -62,14 +64,6 @@ public class Carrito {
 
     public void setEstadoCarrito(EstadoCarritoEnum estadoCarrito) {
         this.estadoCarrito = estadoCarrito;
-    }
-
-    public List<Producto> getProductos() {
-        return productos;
-    }
-
-    public void setProductos(List<Producto> productos) {
-        this.productos = productos;
     }
 
     public Factura getFactura() {
@@ -89,18 +83,27 @@ public class Carrito {
     }
 
     public LocalDate getFechaCreacion() {
-        return FechaCreacion;
-    }
-
-    public void setFechaCreacion(LocalDate fechaCreacion) {
-        FechaCreacion = fechaCreacion;
+        return fechaCreacion;
     }
 
     public LocalDate getFechaActualizacion() {
-        return FechaActualizacion;
+        return fechaActualizacion;
+    }
+
+    public List<ItemCarrito> getItems() {
+        return items;
+    }
+
+    public void setItems(List<ItemCarrito> items) {
+        this.items = items;
     }
 
     public void setFechaActualizacion(LocalDate fechaActualizacion) {
-        FechaActualizacion = fechaActualizacion;
+        this.fechaActualizacion = fechaActualizacion;
     }
+
+    public void setFechaCreacion(LocalDate fechaCreacion) {
+        this.fechaCreacion = fechaCreacion;
+    }
+
 }
