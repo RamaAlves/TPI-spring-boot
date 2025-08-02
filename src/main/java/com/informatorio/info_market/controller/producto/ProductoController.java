@@ -1,9 +1,15 @@
 package com.informatorio.info_market.controller.producto;
 
-import com.informatorio.info_market.domain.Producto;
+import com.informatorio.info_market.dto.error.ErrorResponseDto;
 import com.informatorio.info_market.dto.producto.ProductoCreateDto;
 import com.informatorio.info_market.dto.producto.ProductoDto;
 import com.informatorio.info_market.service.producto.ProductoService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -14,6 +20,10 @@ import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
+@Tag(
+        name="Productos REST APIs",
+        description= "REST APIs del proyecto para realizar un CRUD de productos"
+)
 @RestController
 @RequestMapping("api/v1/productos")
 public class ProductoController {
@@ -25,6 +35,16 @@ public class ProductoController {
         this.productoService = productoService;
     }
 
+    @Operation(
+            summary = "Get de todos los productos",
+            description = "REST API para obtener todos los productos"
+    )
+    @ApiResponses(
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "HTTP Request SUCCESS"
+            )
+    )
     @GetMapping()
     public List<ProductoDto> getAllProductos(
             @RequestParam(value= "minStock", defaultValue="0", required = false) int minStock,
@@ -34,6 +54,27 @@ public class ProductoController {
         return productoService.getAllProductos(minStock,minPrice,maxPrice);
     }
 
+    @Operation(
+            summary = "Post  para crear un producto",
+            description = "REST API para crear un producto"
+    )
+    @ApiResponses({
+
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "HTTP Status CREATED",
+                    content = @Content(
+                            schema = @Schema(implementation = ProductoDto.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "HTTP Status BAD REQUEST",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponseDto.class)
+                    )
+            )
+    })
     @PostMapping()
     public ResponseEntity<ProductoDto> createProducto(@Valid @RequestBody ProductoCreateDto producto){
         ProductoDto productoDto = productoService.createProducto(producto);
@@ -44,6 +85,34 @@ public class ProductoController {
                 .body(productoDto);
     }
 
+    @Operation(
+            summary = "Put para actualizar un producto",
+            description = "REST API para actualizar un producto"
+    )
+    @ApiResponses({
+
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "HTTP Status SUCCESS",
+                    content = @Content(
+                            schema = @Schema(implementation = ProductoDto.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "HTTP Status NOT FOUND",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponseDto.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "HTTP Status BAD REQUEST",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponseDto.class)
+                    )
+            )
+    })
     @PutMapping("/{productoId}")
     public ResponseEntity<ProductoDto> updateProducto(@Valid @RequestBody ProductoCreateDto producto, @PathVariable UUID productoId ){
 
@@ -55,14 +124,52 @@ public class ProductoController {
                 .body(productoDto);
     }
 
+    @Operation(
+            summary = "Get para obtener un producto por id",
+            description = "REST API para obtener un producto por id"
+    )
+    @ApiResponses({
+
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "HTTP Status SUCCESS",
+                    content = @Content(
+                            schema = @Schema(implementation = ProductoDto.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "HTTP Status NOT FOUND",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponseDto.class)
+                    )
+            )
+    })
     @GetMapping("/{productoId}")
     public ProductoDto getProductoById(@PathVariable UUID productoId){
         return productoService.getProductoById(productoId);
     }
 
+    @Operation(
+            summary = "Delete para eliminar un producto",
+            description = "REST API para eliminar un producto"
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "HTTP Status NO CONTENT"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "HTTP Status NOT FOUND",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponseDto.class)
+                    )
+            )
+    })
     @DeleteMapping("/{productoId}")
-    public void deleteProductoById(@PathVariable UUID productoId){
+    public ResponseEntity<Void> deleteProductoById(@PathVariable UUID productoId){
         productoService.deleteProductoById(productoId);
-        ResponseEntity.noContent().build();
+        return ResponseEntity.noContent().build();
     }
 }
