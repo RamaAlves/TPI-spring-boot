@@ -10,6 +10,7 @@ import com.informatorio.info_market.mapper.producto.ProductoMapper;
 import com.informatorio.info_market.repository.producto.ProductoRepository;
 import com.informatorio.info_market.repository.producto.ProductoRepositoryStub;
 import com.informatorio.info_market.service.producto.ProductoService;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,17 +21,12 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@AllArgsConstructor
 public class ProductoServiceImpl implements ProductoService {
 
-    private final ProductoRepository productoRepository;
-    private final ProductoMapper productoMapper;
-    private final ProductoCreateMapper productoCreateMapper;
-
-    public ProductoServiceImpl(ProductoRepository productoRepository, ProductoMapper productoMapper, ProductoCreateMapper productoCreateMapper) {
-        this.productoRepository = productoRepository;
-        this.productoMapper = productoMapper;
-        this.productoCreateMapper = productoCreateMapper;
-    }
+    private  ProductoRepository productoRepository;
+    private  ProductoMapper productoMapper;
+    private  ProductoCreateMapper productoCreateMapper;
 
     @Override
     public List<ProductoDto> getAllProductos(int minStock, double minPrice, double maxPrice){

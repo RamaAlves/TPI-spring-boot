@@ -31,4 +31,11 @@ public class ItemCarrito {
 
     private int cantidad;
 
+    public double calcularSubtotalItem() {
+        if (this.producto == null) {
+            return 0.0;
+        }
+        return this.cantidad * this.producto.getPrecio();
+    }
+
 }

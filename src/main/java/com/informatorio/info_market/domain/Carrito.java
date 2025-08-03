@@ -106,4 +106,15 @@ public class Carrito {
         this.fechaCreacion = fechaCreacion;
     }
 
+    public double calcularTotal(){
+        if(this.items.isEmpty()){
+            return 0.0;
+        }
+        double totalCarrito = 0.0;
+        for (ItemCarrito item:items){
+            totalCarrito += item.calcularSubtotalItem();
+        }
+        return totalCarrito;
+    }
+
 }
