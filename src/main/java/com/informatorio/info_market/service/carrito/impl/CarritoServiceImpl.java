@@ -33,24 +33,23 @@ public class CarritoServiceImpl implements CarritoService {
 
         Usuario usuario = usuarioService.getUsuarioEntityById(idUsuario);
 
+        Optional<Carrito> carrito = obtenerCarritoConEstado( EstadoCarritoEnum.ABIERTO, usuario.getCarritos() );
 
-        Optional<Carrito> carrito = obtenerCarritoConEstado(EstadoCarritoEnum.ABIERTO, usuario.getCarritos());
+        if (carrito.isPresent()){
+            ItemCarrito itemCarrito =itemService.crearItemCarrito( carrito.get(), producto, 1 );
+            carrito.get().getItems().add(  itemCarrito );
 
-        if(carrito.isPresent()){
-            ItemCarrito itemCarrito = itemService.crearItemCarrito(carrito.get(),producto, 1);
-            carrito.get().setFechaActualizacion(LocalDate.now());
-            carrito.get().getItems().add(itemCarrito);
-            carritoRepository.save(carrito.get());
-        }else{
+            carritoRepository.save( carrito.get() );
+        }else {
             Carrito carritoNuevo = new Carrito();
             carritoNuevo.setEstadoCarrito(EstadoCarritoEnum.ABIERTO);
             carritoNuevo.setUsuario(usuario);
             carritoNuevo.setFactura(null);
-            carritoNuevo.setFechaCreacion(LocalDate.now());
             carritoNuevo.setFechaActualizacion(LocalDate.now());
-            ItemCarrito itemCarrito = itemService.crearItemCarrito(carritoNuevo, producto,1);
-            carritoNuevo.getItems().add(itemCarrito);
-            carritoRepository.save(carritoNuevo);
+            carritoNuevo.setFechaCreacion(LocalDate.now());
+            ItemCarrito itemCarrito = itemService.crearItemCarrito( carritoNuevo, producto, 1 );
+            carritoNuevo.getItems().add( itemCarrito );
+            carritoRepository.save( carritoNuevo );
         }
     }
 

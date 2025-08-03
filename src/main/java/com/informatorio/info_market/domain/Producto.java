@@ -2,7 +2,6 @@ package com.informatorio.info_market.domain;
 
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 

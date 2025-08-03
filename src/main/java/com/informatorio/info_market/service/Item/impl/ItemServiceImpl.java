@@ -23,28 +23,32 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemCarrito crearItemCarrito(Carrito carrito, Producto producto, int cantidad) {
+        Optional<ItemCarrito> itemCarrito = getItemCarritoById( carrito.getItems(), producto.getId() );
+        productoService.descontarStock( producto, cantidad );
 
-        Optional<ItemCarrito>itemCarrito=obtenerItemCarritoById(carrito.getItems(), producto.getId());
-        productoService.descontarStock(producto, cantidad);
-        if(itemCarrito.isPresent()){
-            itemCarrito.get().setCantidad(itemCarrito.get().getCantidad()+cantidad);
+        if ( itemCarrito.isPresent() ) {
+            itemCarrito.get().setCantidad( itemCarrito.get().getCantidad() + cantidad );
             return itemCarrito.get();
-        }else{
+        }else {
+
             ItemCarrito nuevoItemCarrito = new ItemCarrito();
-            nuevoItemCarrito.setCarrito(carrito);
-            nuevoItemCarrito.setProducto(producto);
-            nuevoItemCarrito.setCantidad(cantidad);
-            return nuevoItemCarrito;
+            nuevoItemCarrito.setCantidad( cantidad );
+            nuevoItemCarrito.setProducto( producto );
+            nuevoItemCarrito.setCarrito( carrito );
+
+            return nuevoItemCarrito ;
         }
     }
 
-    private Optional<ItemCarrito> obtenerItemCarritoById(List<ItemCarrito> items, UUID idProducto){
-        if(items==null || items.isEmpty()){
+    private Optional<ItemCarrito> getItemCarritoById(List<ItemCarrito> items, UUID idProducto) {
+
+        if ( items == null || items.isEmpty() ){
             return Optional.empty();
         }
 
-        Optional<ItemCarrito> itemCarrito= items.stream()
-                .filter(item-> item.getProducto().getId().equals(idProducto))
+        Optional<ItemCarrito> itemCarrito = items
+                .stream()
+                .filter(item -> item.getProducto().getId().equals( idProducto ))
                 .findFirst();
 
         return itemCarrito;
