@@ -22,7 +22,7 @@ public class Carrito {
     @Enumerated(EnumType.STRING)
     private EstadoCarritoEnum estadoCarrito;
 
-    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.REFRESH}, mappedBy = "carrito")
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH}, mappedBy = "carrito")
     private List<ItemCarrito> items = new ArrayList<>();
 
     @OneToOne(mappedBy = "carrito", cascade = CascadeType.ALL, orphanRemoval = true)
